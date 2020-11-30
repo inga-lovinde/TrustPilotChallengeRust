@@ -1,0 +1,1 @@
+pub const MAX_PHRASE_LENGTH: usize = 27;

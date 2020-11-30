@@ -74,7 +74,7 @@ impl Alphabet {
         for ch in &chars {
             match self.chars_to_offsets.get(&ch) {
                 Some(&index) => {
-                    if array[index] > 127 {
+                    if array[index] >= u8::MAX {
                         return None;
                     }
 

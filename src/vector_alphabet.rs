@@ -23,7 +23,7 @@ impl Vector {
 
     pub fn is_subset_of(&self, other: &Vector) -> bool {
         let comparison_result = packed_simd::u8x32::gt(self.simd_vector, other.simd_vector);
-        packed_simd::m8x32::none(comparison_result as packed_simd::m8x32)
+        packed_simd::m8x32::none(comparison_result)
     }
 
     pub fn safe_substract(&self, vector_to_substract: &Vector) -> Option<Vector> {

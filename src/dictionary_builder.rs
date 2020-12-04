@@ -1,13 +1,44 @@
 use std::collections::HashMap;
+use packed_simd;
 use crate::vector_alphabet;
+
+pub struct WordInfo {
+    simd_words: [packed_simd::u8x32; 32],
+    pub length: usize,
+    pub word: String,
+}
+
+impl WordInfo {
+    fn new(word: String) -> WordInfo {
+        let mut byte_array: [u8; 64] = [0; 64];
+        let bytes = word.as_bytes();
+        let length = bytes.len();
+        byte_array[32 + length] = b' ';
+        for i in 0..length {
+            byte_array[32 + i] = bytes[i];
+        }
+
+        let simd_word_zero: packed_simd::u8x32 = packed_simd::u8x32::from_slice_unaligned(&[0; 32]);
+        let mut simd_words: [packed_simd::u8x32; 32] = [simd_word_zero; 32];
+        for i in 0..31 {
+            simd_words[i] = packed_simd::u8x32::from_slice_unaligned(&byte_array[32-i..64-i]);
+        }
+
+        WordInfo {
+            simd_words,
+            length,
+            word,
+        }
+    }
+}
 
 pub struct Dictionary {
     pub phrase_vector: vector_alphabet::Vector,
     pub vectors: Vec<vector_alphabet::Vector>,
-    pub words: Vec<Vec<String>>,
+    pub words: Vec<Vec<WordInfo>>,
 }
 
-pub fn build_dictionary(phrase: &String, unique_words: &[String]) -> Dictionary {
+pub fn build_dictionary(phrase: &String, unique_words: Vec<String>) -> Dictionary {
     let alphabet = vector_alphabet::Alphabet::new(phrase).unwrap();
 
     let phrase_with_metadata = alphabet.vectorize(phrase).unwrap();
@@ -35,7 +66,7 @@ pub fn build_dictionary(phrase: &String, unique_words: &[String]) -> Dictionary 
     let mut words_by_vectors: HashMap<_, _> = HashMap::new();
     for (word, vector_with_metadata) in words_with_vectors {
         let (_, words_for_vector) = words_by_vectors.entry(vector_with_metadata.key).or_insert((vector_with_metadata.vector, vec![]));
-        words_for_vector.push(word.clone());
+        words_for_vector.push(WordInfo::new(word));
     }
 
     let mut words_by_vectors: Vec<_> = words_by_vectors.into_values().collect();

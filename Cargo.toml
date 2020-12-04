@@ -1,5 +1,5 @@
 [package]
-name = "hello_cargo"
+name = "trustpilot_challenge_rust"
 version = "0.1.0"
 authors = ["inga-lovinde <52715130+inga-lovinde@users.noreply.github.com>"]
 edition = "2018"
@@ -7,4 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-packed_simd = { version = "0.3.4", package = "packed_simd_2" }
+crunchy = "0.2.2"
+packed_simd = { version = "0.3.4", package = "packed_simd_2", features = ["into_bits"] }
+permutohedron = "0.2.4"
+rayon = "1.5.0"

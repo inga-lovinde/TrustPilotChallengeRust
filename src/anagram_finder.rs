@@ -15,9 +15,10 @@ fn find_anagrams_recursive(remainder: &vector_alphabet::Vector, remaining_depth:
         .take_while(|(_, vector)| vector.norm * remaining_depth >= remainder.norm)
         .map(|(index, vector)| match remainder.safe_substract(&vector) {
             Some(new_remainder) => find_anagrams_recursive(&new_remainder, remaining_depth-1, word_vectors, index)
-                .iter()
-                .map(|partial_phrase| {
-                    vec![index].iter().chain(partial_phrase).cloned().collect()
+                .into_iter()
+                .map(|mut partial_phrase| {
+                    partial_phrase.push(index);
+                    partial_phrase
                 })
                 .collect(),
             _ => vec![],

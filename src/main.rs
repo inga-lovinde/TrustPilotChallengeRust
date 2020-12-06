@@ -8,6 +8,7 @@ use trustpilot_challenge_rust::anagram_finder;
 use trustpilot_challenge_rust::anagram_logger;
 use trustpilot_challenge_rust::dictionary_builder;
 use trustpilot_challenge_rust::hash_computer;
+use trustpilot_challenge_rust::permutations_cache;
 use trustpilot_challenge_rust::read_lines;
 
 fn main() {
@@ -39,9 +40,11 @@ fn main() {
 
     let dictionary = dictionary_builder::build_dictionary(phrase, words);
 
-    for number_of_words in 0..=max_number_of_words {
+    for number_of_words in 1..=max_number_of_words {
+        //println!("======= Number of words: {} =======", number_of_words);
+        let permutations = permutations_cache::PermutationsCache::new(number_of_words);
         let result = anagram_finder::find_anagrams(&dictionary, number_of_words);
-        result.into_par_iter()
-            .for_each(|anagram| println!("{}", anagram_logger::get_anagram_view(anagram, &dictionary)));
+        result.par_iter()
+            .for_each(|anagram_vector| anagram_logger::log_anagrams(anagram_vector, &dictionary, &permutations));
     }
 }

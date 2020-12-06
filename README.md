@@ -21,7 +21,7 @@ which produce given MD5 hashes.
 in the dictionary; and it makes the total number of anagrams astronomically large)
 
 This is a working draft, so far the code is extremely dirty (this is my first Rust project),
-and it only lists all anagrams (not including words reordering)
+and it only lists all anagrams
 and does not yet do actual MD5 calculation.
 
 ## Algorithm description

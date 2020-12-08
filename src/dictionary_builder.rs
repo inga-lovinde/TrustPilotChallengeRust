@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use packed_simd;
+use packed_simd::u8x32;
 use crate::vector_alphabet;
 
 pub struct WordInfo {
-    simd_words: [packed_simd::u8x32; 32],
+    simd_words: [u8x32; 32],
     pub length: usize,
     pub word: String,
 }
@@ -18,10 +18,10 @@ impl WordInfo {
             byte_array[32 + i] = bytes[i];
         }
 
-        let simd_word_zero: packed_simd::u8x32 = packed_simd::u8x32::from_slice_unaligned(&[0; 32]);
-        let mut simd_words: [packed_simd::u8x32; 32] = [simd_word_zero; 32];
+        let simd_word_zero: u8x32 = u8x32::from_slice_unaligned(&[0; 32]);
+        let mut simd_words: [u8x32; 32] = [simd_word_zero; 32];
         for i in 0..31 {
-            simd_words[i] = packed_simd::u8x32::from_slice_unaligned(&byte_array[32-i..64-i]);
+            simd_words[i] = u8x32::from_slice_unaligned(&byte_array[32-i..64-i]);
         }
 
         WordInfo {
@@ -29,6 +29,10 @@ impl WordInfo {
             length,
             word,
         }
+    }
+
+    pub fn get_simd_word_for_offset(&self, offset: usize) -> u8x32 {
+        self.simd_words[offset]
     }
 }
 

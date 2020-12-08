@@ -42,9 +42,10 @@ fn main() {
 
     for number_of_words in 1..=max_number_of_words {
         //println!("======= Number of words: {} =======", number_of_words);
+        let phrase_length = phrase_byte_length_without_spaces + number_of_words - 1;
         let permutations = permutations_cache::PermutationsCache::new(number_of_words);
         let result = anagram_finder::find_anagrams(&dictionary, number_of_words);
         result.par_iter()
-            .for_each(|anagram_vector| anagram_logger::log_anagrams(anagram_vector, &dictionary, &permutations));
+            .for_each(|anagram_vector| anagram_logger::log_anagrams(anagram_vector, &dictionary, &permutations, phrase_length));
     }
 }

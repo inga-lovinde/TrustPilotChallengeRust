@@ -168,3 +168,15 @@ because for performance and transparency reasons only the first 8 bytes of hashe
 This means that for every requested hash there is 1/1^32 chance of collision,
 so for 10 requested hashes you will get one false positive every 430 millions of anagrams, on average,
 which allows one to roughly measure the perfomance of MD5 calculation.
+
+(On my laptop with Ryzen 3550H, search of all solutions of up to 5 words takes around 100 seconds,
+and there are about 1.35 billion 5-word anagrams which means that it computes
+more than 100 millions hashes *per second*, and that's in addition to actually finding the anagrams!)
+
+It might also output some duplicate 2-word or 3-word solutions which is, again,
+caused by optimization: we have to pack anagrams into 8-chunks,
+and the number of permutations and substitutions (that is, the number of
+all possible anagrams obtained from a given set of vectors in the character space)
+could be not a multiple of 8.
+In that case, the last chunk might also contain some leftovers from the previous one,
+and if previous chunk produced some solutions, the last chunk may produce the same solutions again.

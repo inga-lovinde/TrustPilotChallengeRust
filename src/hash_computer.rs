@@ -3,9 +3,10 @@ use packed_simd::u32x8;
 use packed_simd::u8x32;
 
 pub const MAX_PHRASE_LENGTH: usize = 31;
+pub const CHUNK_SIZE: usize = 8;
 
 #[allow(unused_assignments)]
-pub fn compute_hashes(messages: [u8x32; 8], messages_length: usize) -> [u32; 8] {
+fn compute_hashes_vector(messages: &[u8x32; CHUNK_SIZE], messages_length: usize) -> u32x8 {
     let mut a: u32x8 = u32x8::splat(0x67452301);
     let mut b: u32x8 = u32x8::splat(0xefcdab89);
     let mut c: u32x8 = u32x8::splat(0x98badcfe);
@@ -174,10 +175,35 @@ pub fn compute_hashes(messages: [u8x32; 8], messages_length: usize) -> [u32; 8] 
         // the remaining three iterations are unnecessary,
         // as the value of a after iteration 64 is equal
         // to the value of b after iteration 61
-        a = b + u32x8::splat(0x67452301);
+        return b + u32x8::splat(0x67452301);
 
-        let mut result: [u32; 8] = [0; 8];
-        a.write_to_slice_unaligned(&mut result);
-        result
     }
+}
+
+pub fn compute_hashes(messages: &[u8x32; CHUNK_SIZE], messages_length: usize) -> [u32; CHUNK_SIZE] {
+    let hashes_vector = compute_hashes_vector(messages, messages_length);
+    let mut result: [u32; CHUNK_SIZE] = [0; CHUNK_SIZE];
+    hashes_vector.write_to_slice_unaligned(&mut result);
+    result
+}
+
+pub fn find_hashes(messages: &[u8x32; CHUNK_SIZE], messages_length: usize, hashes_to_find: &[u32]) -> Option<Vec<u8x32>> {
+    let hashes_vector = compute_hashes_vector(messages, messages_length);
+
+    let has_matches: bool = hashes_to_find.iter()
+        .any(|&hash| hashes_vector.eq(u32x8::splat(hash)).any());
+
+    if !has_matches {
+        return None;
+    }
+
+    let mut result: Vec<_> = Vec::new();
+    for i in 0..CHUNK_SIZE {
+        let hash = hashes_vector.extract(i);
+        if hashes_to_find.contains(&hash) {
+            result.push(messages[i]);
+        }
+    }
+
+    Some(result)
 }

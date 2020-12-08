@@ -6,7 +6,8 @@ where you had to, given the dictionary, and given three MD5 hashes,
 find three-word anagrams of a phrase *"poultry outwits ants"*
 which result in these hashes.
 
-My original solution was in mixture of C# and plain C (with a bit of Visual C++
+My [original solution](https://github.com/inga-lovinde/TrustPilotChallenge)
+was in mixture of C# and plain C (with a bit of Visual C++
 as a bridge), and heavily used AVX2 intrinsics for optimization.
 
 Rust now has a decent API frontend for AVX2 intrinsics 
@@ -18,11 +19,9 @@ find all anagrams no longer than N words and no longer than 27 bytes
 which produce given MD5 hashes.
 
 (The limit on the number of words is neccessary, because there are single-letter words
-in the dictionary; and it makes the total number of anagrams astronomically large)
+in the dictionary; and it makes the total number of anagrams astronomically large.)
 
-This is a working draft, so far the code is extremely dirty (this is my first Rust project),
-and it only lists all anagrams
-and does not yet do actual MD5 calculation.
+Note that this is my first Rust project.
 
 ## Algorithm description
 
@@ -32,6 +31,7 @@ It also computes eight MD5 hashes at a time *per thread*
 (that is, 128 MD5 hashes at once on a modern 8-core CPU),
 with some further optimizations which further shave off
 several percents from MD5 computation time.
+(md5 crate dependency is only used to nicely print results)
 
 We could split the problem into three parts: finding all anagrams
 (up to words reordering and replacing some of the words with their single-word anagrams),
@@ -158,7 +158,13 @@ it will not severely affect performance.
 How to run to solve the original task for three-word anagrams:
 
 ```
-cargo run data\words.txt data\hashes.txt 3 "poultry outwits ants"
+cargo run data\words.txt data\hashes.txt 4 "poultry outwits ants"
 ```
 
-(Note that CPU with AVX2 support is required; that is, Intel Haswell (2013) or newer, or AMD Excavator (2015) or newer)
+(Note that CPU with AVX2 support is required; that is, Intel Haswell (2013) or newer, or AMD Excavator (2015) or newer.)
+
+In addition to the right solutions it will also output some wrong ones,
+because for performance and transparency reasons only the first 8 bytes of hashes are compared.
+This means that for every requested hash there is 1/1^32 chance of collision,
+so for 10 requested hashes you will get one false positive every 430 millions of anagrams, on average,
+which allows one to roughly measure the perfomance of MD5 calculation.

@@ -1,3 +1,6 @@
+// Finds all subsets of vectors within a given set (ordered by norm) which add up to a required vector
+// Within a subset, order of vectors is consistent with the original order in a set
+
 use crate::dictionary_builder;
 use crate::vector_alphabet;
 

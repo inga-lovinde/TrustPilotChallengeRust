@@ -75,7 +75,7 @@ impl Dictionary {
         }
 
         let mut words_by_vectors: Vec<_> = words_by_vectors.into_values().collect();
-        words_by_vectors.sort_by_key(|(vector, _)| vector.norm);
+        words_by_vectors.sort_by_cached_key(|(vector, _)| (vector.norm, vector.get_key()));
         words_by_vectors.reverse();
 
         let mut vectors = vec![];

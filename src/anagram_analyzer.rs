@@ -53,7 +53,7 @@ pub fn analyze_anagrams(anagram_vector: Vec<usize>, dictionary: &Dictionary, per
         process_anagram_chunk(&chunk, phrase_length, hashes_to_find, &mut result);
     }
 
-    //println!("{} {}", anagram_logger::get_anagram_vector_view(&anagram_vector, dictionary), total);
+    //println!("{} {}", crate::solution::get_anagram_vector_view(&anagram_vector, dictionary), total);
 
     result
 }

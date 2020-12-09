@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 use packed_simd;
 
 #[derive(Debug)]
@@ -35,6 +36,10 @@ impl Vector {
         } else {
             return None;
         }
+    }
+
+    pub fn get_key(&self) -> String {
+        format!("{:?}", self.simd_vector)
     }
 }
 

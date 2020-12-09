@@ -1,9 +1,9 @@
 use packed_simd::u8x32;
-use crate::anagram_logger;
 use crate::dictionary_builder::Dictionary;
 use crate::hash_computer::CHUNK_SIZE;
 use crate::hash_computer::find_hashes;
 use crate::permutations_cache::PermutationsCache;
+use crate::solution::Solution;
 
 fn generate_vector_substitutions<'a>(simple_dictionary: &'a Dictionary, permutation: &'a [usize], current_phrase: u8x32, current_phrase_length: usize) -> Box<dyn Iterator<Item = u8x32> + 'a> {
     if permutation.len() == 0 {
@@ -17,20 +17,21 @@ fn generate_vector_substitutions<'a>(simple_dictionary: &'a Dictionary, permutat
     return Box::new(result);
 }
 
-fn process_anagram_chunk(chunk: &[u8x32; CHUNK_SIZE], phrase_length: usize, hashes_to_find: &[u32]) -> () {
+fn process_anagram_chunk(chunk: &[u8x32; CHUNK_SIZE], phrase_length: usize, hashes_to_find: &[u32], solutions: &mut Vec<Solution>) -> () {
     match find_hashes(chunk, phrase_length, hashes_to_find) {
         Some(anagrams) => {
             for anagram in anagrams {
-                anagram_logger::log_anagram_with_hash(anagram, phrase_length);
+                solutions.push(Solution::from_simd(anagram, phrase_length));
             }
         }
         _ => ()
     }
 }
 
-pub fn analyze_anagrams(anagram_vector: &Vec<usize>, dictionary: &Dictionary, permutations: &PermutationsCache, phrase_length: usize, hashes_to_find: &[u32]) -> () {
+pub fn analyze_anagrams(anagram_vector: Vec<usize>, dictionary: &Dictionary, permutations: &PermutationsCache, phrase_length: usize, hashes_to_find: &[u32]) -> Vec<Solution> {
     let mut chunk: [u8x32; CHUNK_SIZE] = [u8x32::splat(0); CHUNK_SIZE];
     let mut chunk_position: usize = 0;
+    let mut result: Vec<_> = Vec::new();
     //let mut total: usize = 0;
 
     permutations.get_permuted_vectors(&anagram_vector).iter()
@@ -44,13 +45,15 @@ pub fn analyze_anagrams(anagram_vector: &Vec<usize>, dictionary: &Dictionary, pe
             chunk_position = (chunk_position + 1) % CHUNK_SIZE;
             //total = total + 1;
             if chunk_position == 0 {
-                process_anagram_chunk(&chunk, phrase_length, hashes_to_find);
+                process_anagram_chunk(&chunk, phrase_length, hashes_to_find, &mut result);
             }
         });
 
     if chunk_position != 0 {
-        process_anagram_chunk(&chunk, phrase_length, hashes_to_find);
+        process_anagram_chunk(&chunk, phrase_length, hashes_to_find, &mut result);
     }
 
-    //println!("{} {}", anagram_logger::get_anagram_vector_view(anagram_vector, dictionary), total);
+    //println!("{} {}", anagram_logger::get_anagram_vector_view(&anagram_vector, dictionary), total);
+
+    result
 }

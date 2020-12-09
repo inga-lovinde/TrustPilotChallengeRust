@@ -41,7 +41,6 @@ impl PermutationsCache {
     }
 
     pub fn get_permuted_vectors<T: Eq + Copy>(&self, ordered_vector_to_permute: &Vec<T>) -> Vec<Vec<T>> {
-        //println!("set_length: {}, vector: {:?}", self.set_length, ordered_vector_to_permute);
         assert_eq!(ordered_vector_to_permute.len(), self.set_length);
 
         let permutation_type = get_required_permutation_type(ordered_vector_to_permute);

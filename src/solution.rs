@@ -2,6 +2,24 @@ use md5;
 use packed_simd::u8x32;
 use crate::dictionary_builder::Dictionary;
 
+#[derive(Debug)]
+pub struct Solution {
+    pub anagram_string: String,
+    pub hash: String,
+}
+
+impl Solution {
+    pub fn from_simd(simd_vector: u8x32, phrase_length: usize) -> Solution {
+        let anagram_string = get_anagram_string_from_simd(simd_vector, phrase_length);
+        let hash = format!("{:x}", md5::compute(anagram_string.as_bytes()));
+
+        Solution {
+            anagram_string,
+            hash,
+        }
+    }
+}
+
 pub fn get_anagram_vector_view(anagram: &Vec<usize>, dictionary: &Dictionary) -> String {
     anagram.iter()
         .map(|&index| {
@@ -25,10 +43,4 @@ fn get_anagram_string_from_simd(simd_vector: u8x32, phrase_length: usize) -> Str
 
 pub fn log_anagram(simd_vector: u8x32, phrase_length: usize) -> () {
     println!("{}", get_anagram_string_from_simd(simd_vector, phrase_length));
-}
-
-pub fn log_anagram_with_hash(simd_vector: u8x32, phrase_length: usize) -> () {
-    let anagram_string = get_anagram_string_from_simd(simd_vector, phrase_length);
-    let hash = md5::compute(anagram_string.as_bytes());
-    println!("{:x} {}", hash, anagram_string);
 }

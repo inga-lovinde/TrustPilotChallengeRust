@@ -8,7 +8,6 @@ edition = "2018"
 
 [dependencies]
 bit_field = "0.10.1"
-crunchy = "0.2.2"
 md5 = "0.7.0"
 packed_simd = { version = "0.3.4", package = "packed_simd_2", features = ["into_bits"] }
 permutohedron = "0.2.4"

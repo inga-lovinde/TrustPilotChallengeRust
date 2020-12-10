@@ -18,5 +18,5 @@ fn main() {
 
     let solver = Solver::create_from_input_data(words, hashes_strings, max_requested_number_of_words, phrase);
     solver.find_solutions()
-        .for_each(|solution| println!("{} {}", solution.hash, solution.anagram_string));
+        .for_each(|solution| println!("{} {}", solution.get_hash(), solution.anagram_string));
 }

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fmt;
 use packed_simd;
 
 #[derive(Debug)]

@@ -126,12 +126,12 @@ For its internal state, MD5 has four 32-bit variables (u32).
 This means that with AVX2, we can use the same operations on 256-bit registers
 (u32x8) and compute eight hashes at the same time in a single thread.
 
-MD5 breaks input chunks into 16 u32 words (and for short phrases chunks 8-14 are always zero),
+MD5 breaks input chunks into 16 u32 words (and for short phrases chunks 8-13 and 15 are always zero),
 so our algorithm could receive 8x256-bit values and the phrase length,
 rearrange these into 9 256-bit values (8 obtained by transposing the original 8 as 8x8 matrix of u32,
 and ninth being 8 copies of the phrase length in bits),
-and then implement MD5 algorithms using these 9 values as input words 0..7, 15
-(substituting 0 as input words 8..14).
+and then implement MD5 algorithms using these 9 values as input words 0..7, 14
+(substituting 0 as input words 8..13, 15).
 
 That way, MD5 performance would be increased 8x compared to the ordinary library function
 which does not use SIMD.
@@ -155,15 +155,15 @@ it will not severely affect performance.
 
 ## How to run
 
-How to run to solve the original task for three-word anagrams:
+How to run to solve the original task for four-word anagrams:
 
 ```
-cargo run data\words.txt data\hashes.txt 4 "poultry outwits ants"
+cargo run --release data\words.txt data\hashes.txt 4 "poultry outwits ants"
 ```
 
 (Note that CPU with AVX2 support is required; that is, Intel Haswell (2013) or newer, or AMD Excavator (2015) or newer.)
 
-In addition to the right solutions it will also output some wrong ones,
+In addition to the right solutions it might also output some wrong ones,
 because for performance and transparency reasons only the first 8 bytes of hashes are compared.
 This means that for every requested hash there is 1/1^32 chance of collision,
 so for 10 requested hashes you will get one false positive every 430 millions of anagrams, on average,
